@@ -1,0 +1,90 @@
+// NIHAL
+// 25/DA/048
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+struct Edge {
+    int src, dest, weight;
+};
+
+void bellmanFord(int V, int E, vector<Edge>& edges, int src) {
+    vector<int> dist(V, INT_MAX);
+    dist[src] = 0;
+
+    // Relax all edges V-1 times
+    for (int i = 1; i <= V - 1; i++) {
+        bool updated = false;
+
+        for (int j = 0; j < E; j++) {
+            int u = edges[j].src;
+            int v = edges[j].dest;
+            int w = edges[j].weight;
+
+            if (dist[u] != INT_MAX &&
+                dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                updated = true;
+            }
+        }
+
+        // Stop early if no distance changes
+        if (!updated)
+            break;
+    }
+
+    // Check for negative-weight cycles
+    for (int j = 0; j < E; j++) {
+        int u = edges[j].src;
+        int v = edges[j].dest;
+        int w = edges[j].weight;
+
+        if (dist[u] != INT_MAX &&
+            dist[u] + w < dist[v]) {
+            cout << "Graph contains a negative-weight cycle "
+                 << "reachable from the source.\n";
+            return;
+        }
+    }
+
+    // Print shortest distances
+    cout << "Vertex\tShortest Distance from Source\n";
+
+    for (int i = 0; i < V; i++) {
+        cout << i << "\t";
+
+        if (dist[i] == INT_MAX)
+            cout << "INF (Unreachable)";
+        else
+            cout << dist[i];
+
+        cout << '\n';
+    }
+}
+
+int main() {
+    int V, E;
+
+    cout << "Enter number of vertices and edges: ";
+    cin >> V >> E;
+
+    vector<Edge> edges(E);
+
+    cout << "Enter edges (source destination weight):\n";
+
+    for (int i = 0; i < E; i++) {
+        cin >> edges[i].src
+            >> edges[i].dest
+            >> edges[i].weight;
+    }
+
+    int src;
+    cout << "Enter source vertex: ";
+    cin >> src;
+
+    bellmanFord(V, E, edges, src);
+
+    return 0;
+}
+
